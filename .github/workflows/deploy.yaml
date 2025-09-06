@@ -1,0 +1,40 @@
+name: Build and Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main # The branch you want to deploy from
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # To write the build files to the gh-pages branch
+      pages: write # To allow the deployment action to set up GitHub Pages
+      id-token: write # To allow the deployment action to authenticate with GitHub
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build web
+        run: flutter build web --release --base-href="/my_portfolio/"
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: 'build/web'
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
